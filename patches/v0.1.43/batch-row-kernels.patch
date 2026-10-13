@@ -1,0 +1,399 @@
+From ce6e8fd9ad174439081a4284f6eefeb4a03edc1c Mon Sep 17 00:00:00 2001
+From: yi-sudo <skyockqq38@gmail.com>
+Date: Tue, 13 Oct 2026 13:14:37 +0800
+Subject: [PATCH] Batch decode: one launch for all rows in QSA attention and
+ GDN recurrence (opt-in)
+
+With --batch N the verify window ran QSA block scoring, top-k and attention,
+and the GDN recurrence (window and commit), as one launch per slot.  At 4-8
+live slots these serial one-row launches dominate the window's cost.
+
+Two env-gated paths, both off by default (upstream behaviour unchanged):
+
+  STRATA_BATCH_ATTN_ROWS=1   block scores, top-k and decode attention for all
+                             rows of the window in one launch each; every row
+                             reads its own slot's indexer keys and K/V pools
+                             (passed by value as kernel params, so the CUDA
+                             graph per row layout stays valid).  Skipped when
+                             a slot streams KV (kv_mode 1).
+  STRATA_BATCH_GDN_GROUPS=1  GDN recurrence in the window and the 1-row commit
+                             for all slots in one launch (grid.y = slot group).
+                             Conv commits stay per slot.
+
+Same per-row arithmetic: temperature-0 outputs are byte-identical to
+upstream (4 concurrent prompts, p4 and p8).
+
+RTX PRO 6000 Blackwell, Qwen3.8-Flash-Next IQ3_S, all experts in VRAM,
+--batch 4, 1024-token stories, aggregate tok/s:
+
+  clients        1      2      3      4
+  upstream     185.6  202.4  242.6  268.5
+  attn rows    181.7  214.4  267.8  302.4
+  attn + gdn   181.2  220.3  277.0  312.9
+
+--batch 8 (reserve 6144, experts still all in VRAM), 8 clients:
+upstream 308.5 -> 377.8 tok/s (24.5 -> 19.9 ms per 7.94-row window).
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ include/strata/kernels/qsa_decode_attn.hpp | 12 ++++
+ include/strata/kernels/qsa_select.hpp      | 10 ++++
+ include/strata/kernels/verify_kernels.hpp  | 14 +++++
+ src/core/verify.cpp                        | 69 ++++++++++++++++++++++
+ src/kernels/cuda/qsa_decode_attn.cu        | 40 ++++++++++++-
+ src/kernels/cuda/qsa_select.cu             | 26 ++++++--
+ src/kernels/cuda/verify_kernels.cu         | 37 +++++++++++-
+ 7 files changed, 202 insertions(+), 6 deletions(-)
+
+diff --git a/include/strata/kernels/qsa_decode_attn.hpp b/include/strata/kernels/qsa_decode_attn.hpp
+index 45c0f30..cd2bbc6 100644
+--- a/include/strata/kernels/qsa_decode_attn.hpp
++++ b/include/strata/kernels/qsa_decode_attn.hpp
+@@ -32,6 +32,13 @@ struct QsaAttnPools {
+     const int32_t* page_table = nullptr;
+ };
+ 
++/// lab (batch windows): every query's own K/V pools - query z reads p[z] (z < n).  n = 0: the call's one `pools`.
++inline constexpr int kAttnRowsMax = 8;
++struct QsaAttnPoolsRows {
++    QsaAttnPools p[kAttnRowsMax];
++    int n = 0;
++};
++
+ /// Scratch floats for `cap` selected cells: partial accumulators, maxima and sums.
+ uint64_t qsa_decode_attn_scratch_floats(int64_t cap, const QsaShapes& s);
+ 
+@@ -43,4 +50,9 @@ void qsa_decode_attn_step(const float* q, const QsaAttnPools& pools, const int32
+ void qsa_decode_attn_batch(const float* q, const QsaAttnPools& pools, const int32_t* ids, const int32_t* steps,
+                            int64_t cap, const QsaShapes& s, float* scratch, float* attn, int64_t n_q, void* stream);
+ 
++/// lab: qsa_decode_attn_batch for up to kAttnRowsMax queries of DIFFERENT sequences (batch slots), query z attending
++/// over rows.p[z] - one launch instead of one per query, the same per-query arithmetic (bit-identical outputs).
++void qsa_decode_attn_batch_rows(const float* q, const QsaAttnPoolsRows& rows, const int32_t* ids, const int32_t* steps,
++                                int64_t cap, const QsaShapes& s, float* scratch, float* attn, int64_t n_q, void* stream);
++
+ }  // namespace strata::kernels
+diff --git a/include/strata/kernels/qsa_select.hpp b/include/strata/kernels/qsa_select.hpp
+index c36d29c..947668f 100644
+--- a/include/strata/kernels/qsa_select.hpp
++++ b/include/strata/kernels/qsa_select.hpp
+@@ -24,6 +24,16 @@
+ namespace strata::kernels {
+ 
+ /// scores [nq, max_blocks]; q_idx [nq, idx_n_head, idx_dim] (normed and rotated); steps [nq, kStepCount].
++/// lab (batch windows): query q's own indexer keys - pooled[q], dead[q] (q < n <= 8).
++struct QsaScoreRows {
++    const float* pooled[8] = {};
++    const float* dead[8] = {};
++    int n = 0;
++};
++/// lab: qsa_block_scores for up to 8 queries of DIFFERENT sequences in one launch (the multi kernel, per query its own
++/// keys; the same arithmetic in the same order: bit-identical scores).
++void qsa_block_scores_rows(const QsaScoreRows& rows, const float* q_idx, const int32_t* steps, int64_t nq,
++                           int64_t max_blocks, const QsaShapes& s, float* scores, void* stream);
+ void qsa_block_scores(const float* pooled, const float* dead, const float* q_idx, const int32_t* steps, int64_t nq,
+                       int64_t max_blocks, const QsaShapes& s, float* scores, void* stream,
+                       int64_t active_blocks = -1);   ///< perf-review C-1: > 0 launches only this many blocks (the
+diff --git a/include/strata/kernels/verify_kernels.hpp b/include/strata/kernels/verify_kernels.hpp
+index 87e5d5c..98d5580 100644
+--- a/include/strata/kernels/verify_kernels.hpp
++++ b/include/strata/kernels/verify_kernels.hpp
+@@ -38,6 +38,20 @@ void gdn_ab_multi(const float* x, const uint16_t* w_alpha, const uint16_t* w_bet
+ /// The recurrence + output norm for T tokens (h = (T, conv_channels) as q|k|v, gate/beta (T, h_v), z/y
+ /// (T, value_dim)).  With `n_keep == nullptr` the state is read and NOT written (verify); otherwise the first
+ /// *n_keep tokens are run and the state is written (commit; `y` may be scratch).  Bitwise `fused_gdn_step_norm`.
++/// lab (batch windows): up to 8 slot groups in one launch - group i is rows [first[i], first[i] + ntok[i]) of the
++/// window's buffers, recurring over its own slot's state[i] (and committing keep[i] tokens when keep is given).
++struct GdnGroups {
++    float* state[8] = {};
++    const int32_t* keep[8] = {};
++    int first[8] = {};
++    int ntok[8] = {};
++    int n = 0;
++};
++/// lab: gdn_step_norm_multi over several slots' groups at once (the generic kernel, grid.y = group; per group the
++/// same arithmetic as one call each: bit-identical).  `commit`: every group keeps *keep[i] tokens, no outputs used.
++void gdn_step_norm_groups(const GdnGroups& groups, const float* h, int conv_channels, const float* gate, const float* beta,
++                          const float* z, const float* gamma, float eps, float* y, int h_k, int h_v, bool commit,
++                          void* stream);
+ void gdn_step_norm_multi(float* state, const float* h, int conv_channels, const float* gate, const float* beta,
+                          const float* z, const float* gamma, float eps, float* y, int h_k, int h_v, int n_tok,
+                          const int32_t* n_keep, void* stream, int t_out_begin = 0, void* xq_out = nullptr);
+diff --git a/src/core/verify.cpp b/src/core/verify.cpp
+index df61724..32329a2 100644
+--- a/src/core/verify.cpp
++++ b/src/core/verify.cpp
+@@ -1160,6 +1160,24 @@ bool Verifier::record_window(int T, cudaStream_t cs, std::string& err) {
+                 stamp(l, 5, grp);
+                 }
+                 // the recurrence from the untouched state over tokens [0, te); outputs only for this group's
++                static const bool gdn_groups_on = [] {   // lab: STRATA_BATCH_GDN_GROUPS=1, all slots in one launch
++                    const char* v = std::getenv("STRATA_BATCH_GDN_GROUPS");
++                    return v != nullptr && std::atoi(v) != 0;
++                }();
++                if (batch_rec_ && gdn_groups_on && te - tb <= 8) {
++                    strata::kernels::GdnGroups gg;
++                    for (int t = tb; t < te;) {
++                        const int first = t;
++                        while (t < te && brow_[t] == brow_[first]) ++t;
++                        SessionState& sx = slot_ss(first);
++                        gg.state[gg.n] = sx.gdn_state + (size_t) (gi - sx.gdn_ord0) * gdn_floats;
++                        gg.first[gg.n] = first;
++                        gg.ntok[gg.n] = t - first;
++                        ++gg.n;
++                    }
++                    strata::kernels::gdn_step_norm_groups(gg, hb, (int) C, gate, beta, z_, (const float*) wnm->data, EPS,
++                                                          y_, (int) HK, (int) HV, false, cs);
++                } else
+                 if (batch_rec_) {   // each slot's recurrence over its own proposed-token group
+                     for (int t = tb; t < te;) {
+                         const int first = t;
+@@ -1364,6 +1382,35 @@ bool Verifier::record_window(int T, cudaStream_t cs, std::string& err) {
+                 }
+                 }
+                 stamp(l, 10, grp);
++                // lab (STRATA_BATCH_ATTN_ROWS=1): the window's rows in ONE launch per step - scores with each row's
++                // own indexer keys, the top-k over all rows (row-independent), attention with each row's own pools -
++                // instead of 3-4 one-row launches per row; the same per-row arithmetic.  Not with KV streaming
++                // (qsa_kv_resolve has work per slot then).
++                static const bool attn_rows = [] {
++                    const char* v = std::getenv("STRATA_BATCH_ATTN_ROWS");
++                    return v != nullptr && std::atoi(v) != 0;
++                }();
++                bool rows_ok = batch_rec_ && attn_rows && te - tb <= strata::kernels::kAttnRowsMax;
++                for (int t = tb; rows_ok && t < te; ++t) rows_ok = slot_ss(t).qsa_states[qi].kv_mode != 1;
++                if (rows_ok) {
++                    const int n_rows = te - tb;
++                    strata::kernels::QsaScoreRows sr;
++                    strata::kernels::QsaAttnPoolsRows pr;
++                    sr.n = pr.n = n_rows;
++                    for (int t = tb; t < te; ++t) {
++                        const QsaState& sx = slot_ss(t).qsa_states[qi];
++                        sr.pooled[t - tb] = sx.idx_pooled;
++                        sr.dead[t - tb] = sx.idx_dead;
++                        pr.p[t - tb] = qsa_attn_pools(sx);
++                    }
++                    qsa_block_scores_rows(sr, qidx_ + tb * IQ * ID, step_ + tb * kStepCount, n_rows, max_blocks_, s,
++                                          scores_ + (size_t) tb * max_blocks_, cs);
++                    qsa_block_topk(scores_ + (size_t) tb * max_blocks_, step_ + tb * kStepCount, n_rows, max_blocks_, cap_,
++                                   s, sel_ + (size_t) tb * cap_, cs);
++                    qsa_decode_attn_batch_rows(qcur_ + tb * NH * HD, pr, sel_ + (size_t) tb * cap_, step_ + tb * kStepCount,
++                                               cap_, s, attn_scratch_ + (size_t) tb * attn_scratch_floats_,
++                                               attn_ + tb * NH * HD, n_rows, cs);
++                } else
+                 if (batch_rec_) {   // each row selects and attends over its own slot's K/V
+                     for (int t = tb; t < te; ++t) {
+                         const QsaState& sx = slot_ss(t).qsa_states[qi];
+@@ -2639,6 +2686,15 @@ bool Verifier::capture_commit_batch(const int* rows, int S, int hbase, std::stri
+             if (!is_qsa_layer(g, l)) {
+                 const WeightRef* wnm = need(v, "ssm_norm.weight", err);
+                 if (!wnm) { ok = false; break; }
++                // lab (STRATA_BATCH_GDN_GROUPS=1): one-row groups (no --batch-mtp proposals) commit their recurrence
++                // in one launch for all slots; the conv commits stay per slot
++                static const bool gdn_groups_on = [] {
++                    const char* v = std::getenv("STRATA_BATCH_GDN_GROUPS");
++                    return v != nullptr && std::atoi(v) != 0;
++                }();
++                bool one_row = S <= 8;
++                for (int t = 1; one_row && t < S; ++t) one_row = rows[t] != rows[t - 1];
++                strata::kernels::GdnGroups gg;
+                 for (int t = 0; t < S;) {
+                     const int first = t;
+                     while (t < S && rows[t] == rows[first]) ++t;
+@@ -2648,6 +2704,14 @@ bool Verifier::capture_commit_batch(const int* rows, int S, int hbase, std::stri
+                     float* conv = state + (uint64_t) g.ssm_state_size * g.ssm_v_heads * g.ssm_state_size;
+                     gdn_conv_commit(conv, qkv_L_ + (size_t) gdn_index * MT * C + (size_t) first * C,
+                                     (int) C, keep, cs_);
++                    if (gdn_groups_on && one_row) {
++                        gg.state[gg.n] = state;
++                        gg.keep[gg.n] = keep;
++                        gg.first[gg.n] = first;
++                        gg.ntok[gg.n] = 1;
++                        ++gg.n;
++                        continue;
++                    }
+                     gdn_step_norm_multi(state, h_L_ + (size_t) gdn_index * MT * C + (size_t) first * C, (int) C,
+                                         gate_L_ + (size_t) gdn_index * MT * HV + (size_t) first * HV,
+                                         beta_L_ + (size_t) gdn_index * MT * HV + (size_t) first * HV,
+@@ -2656,6 +2720,11 @@ bool Verifier::capture_commit_batch(const int* rows, int S, int hbase, std::stri
+                                         (int) HV, t - first, keep, cs_,
+                                         t - first > 1 ? t - first : 0);   // a 1-row group keeps the 0.1.39 kernel
+                 }
++                if (gg.n > 0)
++                    gdn_step_norm_groups(gg, h_L_ + (size_t) gdn_index * MT * C, (int) C,
++                                         gate_L_ + (size_t) gdn_index * MT * HV, beta_L_ + (size_t) gdn_index * MT * HV,
++                                         z_, (const float*) wnm->data, EPS, y_dummy_, (int) g.ssm_k_heads, (int) HV, true,
++                                         cs_);
+                 ++gdn_index;
+             } else {
+                 const WeightRef* wikn = need(v, "indexer.k_norm.weight", err);
+diff --git a/src/kernels/cuda/qsa_decode_attn.cu b/src/kernels/cuda/qsa_decode_attn.cu
+index 624036c..f6d7849 100644
+--- a/src/kernels/cuda/qsa_decode_attn.cu
++++ b/src/kernels/cuda/qsa_decode_attn.cu
+@@ -120,7 +120,9 @@ __global__ void __launch_bounds__(THREADS) attn_chunk_kernel(const float* __rest
+                                                              const int32_t* __restrict__ step, int n_kv_heads,
+                                                              int page_size, float scale, float* __restrict__ part_acc,
+                                                              float* __restrict__ part_m, float* __restrict__ part_l,
+-                                                             int n_chunks, int cap = 0, long long scratch_stride = 0) {
++                                                             int n_chunks, int cap = 0, long long scratch_stride = 0,
++                                                             QsaAttnPoolsRows prow = {}) {
++    if (prow.n > 0) p = prow.p[blockIdx.z];   // lab: a batch window's query attends over its own slot's pools
+     // batched form: query blockIdx.z, with its own q row, selection, step and scratch
+     q += (size_t) blockIdx.z * (size_t) (n_kv_heads * G) * HD;
+     ids += (size_t) blockIdx.z * (size_t) cap;
+@@ -708,6 +710,42 @@ void qsa_decode_attn_batch(const float* q, const QsaAttnPools& pools, const int3
+     }
+ }
+ 
++void qsa_decode_attn_batch_rows(const float* q, const QsaAttnPoolsRows& rows, const int32_t* ids, const int32_t* steps,
++                                int64_t cap, const QsaShapes& s, float* scratch, float* attn, int64_t n_q, void* stream) {
++    if (n_q <= 0) return;
++    const QsaAttnPools& pools = rows.p[0];
++    if (rows.n != n_q || n_q > kAttnRowsMax || s.head_dim != HD || s.n_head != (int64_t) G * s.n_head_kv || cap <= 0 ||
++        !scratch || !ids || !steps) {
++        std::fprintf(stderr, "qsa_decode_attn_batch_rows: unsupported geometry or missing buffers\n");
++        std::exit(1);
++    }
++    const int kv_mode = pools.k_q4 != nullptr ? 2 : (pools.k_q != nullptr && pools.v_q4 != nullptr ? 3
++                        : (pools.k_q != nullptr ? 1 : 0));
++    const int n_chunks = (int) ((cap + CHUNK - 1) / CHUNK);
++    const long long stride = (long long) qsa_decode_attn_scratch_floats(cap, s);
++    float* part_acc = scratch;
++    float* part_m = scratch + (size_t) n_chunks * s.n_head * HD;
++    float* part_l = part_m + (size_t) n_chunks * s.n_head;
++    const float scale = 1.0f / sqrtf((float) HD);
++    const dim3 grid((unsigned) n_chunks, (unsigned) s.n_head_kv, (unsigned) n_q);
++    cudaStream_t st = (cudaStream_t) stream;
++    // the default kernel of qsa_decode_attn_batch on this target (no lane-cell, no pre-sm_75, no gfx906 variants)
++#define STRATA_ATTN_ROWS(M) attn_chunk_kernel<M><<<grid, THREADS, 0, st>>>(q, pools, ids, steps, (int) s.n_head_kv, \
++        (int) s.page_size, scale, part_acc, part_m, part_l, n_chunks, (int) cap, stride, rows)
++    if (kv_mode == 3) STRATA_ATTN_ROWS(3);
++    else if (kv_mode == 2) STRATA_ATTN_ROWS(2);
++    else if (kv_mode == 1) STRATA_ATTN_ROWS(1);
++    else STRATA_ATTN_ROWS(0);
++#undef STRATA_ATTN_ROWS
++    attn_merge_kernel<<<dim3((unsigned) s.n_head, (unsigned) n_q), HD, 0, st>>>(part_acc, part_m, part_l, n_chunks,
++                                                                                  attn, stride);
++    const cudaError_t e = cudaGetLastError();
++    if (e != cudaSuccess) {
++        std::fprintf(stderr, "qsa_decode_attn_batch_rows: %s\n", cudaGetErrorString(e));
++        std::exit(1);
++    }
++}
++
+ uint64_t qsa_decode_attn_scratch_floats(int64_t cap, const QsaShapes& s) {
+     const int64_t chunks = (cap + CHUNK - 1) / CHUNK;
+     return (uint64_t) chunks * (uint64_t) s.n_head * (HD + 2) + 64;
+diff --git a/src/kernels/cuda/qsa_select.cu b/src/kernels/cuda/qsa_select.cu
+index 4820d20..06f577d 100644
+--- a/src/kernels/cuda/qsa_select.cu
++++ b/src/kernels/cuda/qsa_select.cu
+@@ -818,7 +818,7 @@ __global__ void __launch_bounds__(SCORE_WARPS * 32) block_scores_multi_kernel(co
+                                                                               const float* __restrict__ q_idx,
+                                                                               const int32_t* __restrict__ steps, int nq,
+                                                                               int64_t max_blocks, float* __restrict__ out,
+-                                                                              bool early_exit) {
++                                                                              bool early_exit, QsaScoreRows srow = {}) {
+     __shared__ __align__(16) float qs[MQ * IDX_HEADS * IDX_DIM];
+     __shared__ int64_t s_nkv[MQ], s_nbid[MQ];
+     if (!early_exit)
+@@ -841,12 +841,16 @@ __global__ void __launch_bounds__(SCORE_WARPS * 32) block_scores_multi_kernel(co
+     const int lane = threadIdx.x & 31;
+     const int64_t wstride = (int64_t) gridDim.x * SCORE_WARPS;
+     for (int64_t b = (int64_t) blockIdx.x * SCORE_WARPS + (threadIdx.x >> 5); b <= top && b < max_blocks; b += wstride) {
+-        const float4 kp = *reinterpret_cast<const float4*>(pooled + b * IDX_DIM + lane * 4);
+-        const float4 kd = *reinterpret_cast<const float4*>(dead + lane * 4);
++        // lab (srow.n > 0): each query reads its own sequence's keys; else one set of keys for every query
++        const bool own = srow.n > 0;
++        const float4 kp = own ? float4{} : *reinterpret_cast<const float4*>(pooled + b * IDX_DIM + lane * 4);
++        const float4 kd = own ? float4{} : *reinterpret_cast<const float4*>(dead + lane * 4);
+         for (int qi = 0; qi < nq; ++qi) {
+             const int64_t n_bid = s_nbid[qi];
+             if (b > n_bid) continue;
+-            const float4 k4 = (b == n_bid) ? kd : kp;
++            const float4 k4 = !own ? ((b == n_bid) ? kd : kp)
++                            : (b == n_bid) ? *reinterpret_cast<const float4*>(srow.dead[qi] + lane * 4)
++                                           : *reinterpret_cast<const float4*>(srow.pooled[qi] + b * IDX_DIM + lane * 4);
+             const float* q = qs + qi * IDX_HEADS * IDX_DIM + lane * 4;
+             float score = 0.0f;
+ #pragma unroll
+@@ -1115,6 +1119,20 @@ void qsa_block_scores(const float* pooled, const float* dead, const float* q_idx
+     if (e != cudaSuccess) { std::fprintf(stderr, "qsa_block_scores: %s\n", cudaGetErrorString(e)); std::exit(1); }
+ }
+ 
++void qsa_block_scores_rows(const QsaScoreRows& rows, const float* q_idx, const int32_t* steps, int64_t nq,
++                           int64_t max_blocks, const QsaShapes& s, float* scores, void* stream) {
++    if (nq <= 0) return;
++    if (s.idx_dim != IDX_DIM || s.idx_n_head != IDX_HEADS || s.idx_block != R || nq > MQ || rows.n != nq) {
++        std::fprintf(stderr, "qsa_block_scores_rows: unsupported geometry\n");
++        std::exit(1);
++    }
++    static const bool early = [] { const char* v = std::getenv("STRATA_QSA_EARLY_EXIT"); return v == nullptr || std::atoi(v) != 0; }();
++    block_scores_multi_kernel<<<256, SCORE_WARPS * 32, 0, (cudaStream_t) stream>>>(nullptr, nullptr, q_idx, steps, (int) nq,
++                                                                                 max_blocks, scores, early, rows);
++    const cudaError_t e = cudaGetLastError();
++    if (e != cudaSuccess) { std::fprintf(stderr, "qsa_block_scores_rows: %s\n", cudaGetErrorString(e)); std::exit(1); }
++}
++
+ bool qsa_block_scores_tc(const float* pooled, const float* dead, const float* q_idx, const int32_t* steps, int64_t nq,
+                          int64_t max_blocks, const QsaShapes& s, float* scores, void* stream, int64_t active_blocks) {
+     if (nq <= 0) return true;
+diff --git a/src/kernels/cuda/verify_kernels.cu b/src/kernels/cuda/verify_kernels.cu
+index ac2855d..3a4293b 100644
+--- a/src/kernels/cuda/verify_kernels.cu
++++ b/src/kernels/cuda/verify_kernels.cu
+@@ -245,7 +245,18 @@ __global__ void __launch_bounds__(S * RG) gdn_step_norm_multi_kernel(float* __re
+                                                                      const float* __restrict__ gamma, float eps,
+                                                                      float* __restrict__ y, int h_k, int h_v, int T,
+                                                                      const int32_t* __restrict__ n_keep, int t_out_begin,
+-                                                                     GdnQ81* __restrict__ xq) {
++                                                                     GdnQ81* __restrict__ xq, GdnGroups grp = {}) {
++    if (grp.n > 0) {   // lab: group blockIdx.y - its slot's state and its rows of the window's buffers
++        const int gi = blockIdx.y, f = grp.first[gi];
++        state = grp.state[gi];
++        hbuf += (size_t) f * C;
++        gate += (size_t) f * h_v;
++        beta += (size_t) f * h_v;
++        z += (size_t) f * S * h_v;
++        y += (size_t) f * S * h_v;
++        T = grp.ntok[gi];
++        n_keep = grp.keep[gi];
++    }
+     __shared__ float sk[2][S], sq[2][S];
+     __shared__ float red_kv[RG][S];
+     __shared__ float red_o[RG][S];
+@@ -990,6 +1001,30 @@ void gdn_ab_multi(const float* x, const uint16_t* w_alpha, const uint16_t* w_bet
+     check("gdn_ab_multi");
+ }
+ 
++void gdn_step_norm_groups(const GdnGroups& groups, const float* h, int conv_channels, const float* gate, const float* beta,
++                          const float* z, const float* gamma, float eps, float* y, int h_k, int h_v, bool commit,
++                          void* stream) {
++    if (groups.n < 1 || groups.n > 8 || !h || !gate || !beta || !z || !gamma || !y || h_k <= 0 || h_v % h_k) {
++        std::fprintf(stderr, "gdn_step_norm_groups: invalid arguments\n");
++        std::exit(1);
++    }
++    for (int i = 0; i < groups.n; ++i)
++        if (!groups.state[i] || groups.ntok[i] < 1 || groups.ntok[i] > kVerifyMaxT || (commit && !groups.keep[i])) {
++            std::fprintf(stderr, "gdn_step_norm_groups: invalid group %d\n", i);
++            std::exit(1);
++        }
++    const dim3 g1((unsigned) h_v, (unsigned) groups.n), b1(S, RG);
++    // the kernel gdn_step_norm_multi picks for these calls: a window's rows (all outputs, no keep) or a commit of
++    // one-row groups (keep, t_out_begin 0)
++    if (commit)
++        gdn_step_norm_multi_kernel<false, false><<<g1, b1, 0, (cudaStream_t) stream>>>(
++            nullptr, h, conv_channels, gate, beta, z, gamma, eps, y, h_k, h_v, 0, nullptr, 0, nullptr, groups);
++    else
++        gdn_step_norm_multi_kernel<true, false><<<g1, b1, 0, (cudaStream_t) stream>>>(
++            nullptr, h, conv_channels, gate, beta, z, gamma, eps, y, h_k, h_v, 0, nullptr, 0, nullptr, groups);
++    check("gdn_step_norm_groups");
++}
++
+ void gdn_step_norm_multi(float* state, const float* h, int conv_channels, const float* gate, const float* beta,
+                          const float* z, const float* gamma, float eps, float* y, int h_k, int h_v, int n_tok,
+                          const int32_t* n_keep, void* stream, int t_out_begin, void* xq_out) {
+-- 
+2.43.0
+

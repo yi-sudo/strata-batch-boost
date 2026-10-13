@@ -1,0 +1,42 @@
+[
+ {
+  "label": "p8-patched",
+  "clients": 1,
+  "aggregate_tok_s": 179.6587614332602,
+  "per_req_tok_s": 180.54345262640788,
+  "per_req_min": 180.54345262640788,
+  "ttft_mean_s": 0.027927237504627556,
+  "ttft_max_s": 0.027927237504627556,
+  "errors": 0
+ },
+ {
+  "label": "p8-patched",
+  "clients": 4,
+  "aggregate_tok_s": 311.5751008279012,
+  "per_req_tok_s": 80.28541850655253,
+  "per_req_min": 78.80455946799819,
+  "ttft_mean_s": 0.3733451480002259,
+  "ttft_max_s": 0.6370681359840091,
+  "errors": 0
+ },
+ {
+  "label": "p8-patched",
+  "clients": 6,
+  "aggregate_tok_s": 354.8215046819754,
+  "per_req_tok_s": 60.886479564226896,
+  "per_req_min": 59.8107189639259,
+  "ttft_mean_s": 0.4638201107469892,
+  "ttft_max_s": 0.8733516944921575,
+  "errors": 0
+ },
+ {
+  "label": "p8-patched",
+  "clients": 8,
+  "aggregate_tok_s": 374.8403871361418,
+  "per_req_tok_s": 48.44487354075488,
+  "per_req_min": 47.37373116055153,
+  "ttft_mean_s": 0.6687062101300398,
+  "ttft_max_s": 1.328203470504377,
+  "errors": 0
+ }
+]

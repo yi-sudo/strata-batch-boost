@@ -1,0 +1,42 @@
+[
+ {
+  "label": "p8-upstream",
+  "clients": 1,
+  "aggregate_tok_s": 183.2191206784242,
+  "per_req_tok_s": 184.13781332241865,
+  "per_req_min": 184.13781332241865,
+  "ttft_mean_s": 0.02787289248954039,
+  "ttft_max_s": 0.02787289248954039,
+  "errors": 0
+ },
+ {
+  "label": "p8-upstream",
+  "clients": 4,
+  "aggregate_tok_s": 267.6117993082348,
+  "per_req_tok_s": 68.60862354415033,
+  "per_req_min": 67.57378257209211,
+  "ttft_mean_s": 0.35684263812800054,
+  "ttft_max_s": 0.6175958734966116,
+  "errors": 0
+ },
+ {
+  "label": "p8-upstream",
+  "clients": 6,
+  "aggregate_tok_s": 298.5981319655199,
+  "per_req_tok_s": 50.87924195458275,
+  "per_req_min": 50.24885718058603,
+  "ttft_mean_s": 0.41160947232856415,
+  "ttft_max_s": 0.804180079503567,
+  "errors": 0
+ },
+ {
+  "label": "p8-upstream",
+  "clients": 8,
+  "aggregate_tok_s": 308.45382086791693,
+  "per_req_tok_s": 39.59928462328816,
+  "per_req_min": 38.905848087652984,
+  "ttft_mean_s": 0.6492647862523881,
+  "ttft_max_s": 1.3282683285069652,
+  "errors": 0
+ }
+]

@@ -1,0 +1,6 @@
+strata batch: slot 0 gave back 51 tokens of this conversation (its turn checkpoint) in 28.2 ms
+strata batch: slot 3 takes 58 tokens (copied in 54.8 ms)
+strata batch: slot 0 takes 58 tokens (copied in 54.5 ms)
+strata batch: slot 1 takes 57 tokens (copied in 54.7 ms)
+strata batch: 683 windows, avg 5.99 rows, 23.29 ms/window = run 20.61 (CUDA0 GPU-reach wait 0.00 + CPU experts 0.00) + commit 1.09 + emit 1.60 + adapt wait 0.00; per stage (ms/window): CUDA0 wait 0.00 + pool 0.00; per layer-window: CPU experts 0.00, VRAM hits 0.00, PCIe 0.00; routed entries per window: VRAM 0.0 (0.0%), PCIe 0.0 (0.0%), CPU 0.0 (0.0%); 248.9 rows/s over 16434 ms of wall time (admissions included)
+strata batch: MTP proposals accepted 1379 of 2727 (50.6%), 1.51 tokens per slot-window (STRATA_BATCH_MTP_D=3)

@@ -1,0 +1,32 @@
+[
+ {
+  "label": "lab-p4",
+  "clients": 1,
+  "aggregate_tok_s": 180.27929448569347,
+  "per_req_tok_s": 181.17248845568906,
+  "per_req_min": 181.17248845568906,
+  "ttft_mean_s": 0.02800143149215728,
+  "ttft_max_s": 0.02800143149215728,
+  "errors": 0
+ },
+ {
+  "label": "lab-p4",
+  "clients": 2,
+  "aggregate_tok_s": 201.51546638136398,
+  "per_req_tok_s": 102.89881505528092,
+  "per_req_min": 102.07836569384412,
+  "ttft_mean_s": 0.20002715100417845,
+  "ttft_max_s": 0.2914923704956891,
+  "errors": 0
+ },
+ {
+  "label": "lab-p4",
+  "clients": 4,
+  "aggregate_tok_s": 266.6855271175335,
+  "per_req_tok_s": 68.19371230133643,
+  "per_req_min": 67.10259281725715,
+  "ttft_mean_s": 0.3204653768843855,
+  "ttft_max_s": 0.6237917765101884,
+  "errors": 0
+ }
+]

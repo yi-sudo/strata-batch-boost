@@ -1,0 +1,13 @@
+ctx=131072 p=4  strata= 63966 MiB  gpu_total=65689 MiB  experts 24576 arena 3485 free 31612
+[c131072p4] clients= 1  總吞吐   181.0 tok/s  單請求  182.7 (最慢  182.7)  TTFT 平均  0.03s 最久  0.03s  錯誤 0
+[c131072p4] clients= 4  總吞吐   291.4 tok/s  單請求   77.3 (最慢   73.7)  TTFT 平均  0.37s 最久  0.71s  錯誤 0
+ctx=65536 p=4  strata= 59370 MiB  gpu_total=61093 MiB  experts 24576 arena 3485 free 36208
+[c65536p4] clients= 1  總吞吐   181.1 tok/s  單請求  182.9 (最慢  182.9)  TTFT 平均  0.03s 最久  0.03s  錯誤 0
+[c65536p4] clients= 4  總吞吐   286.4 tok/s  單請求   77.4 (最慢   73.9)  TTFT 平均  0.50s 最久  0.84s  錯誤 0
+ctx=262144 p=1  strata= 58198 MiB  gpu_total=59921 MiB  experts 24576 arena 3485 free 37380
+[c262144p1] clients= 1  總吞吐   186.0 tok/s  單請求  187.9 (最慢  187.9)  TTFT 平均  0.03s 最久  0.03s  錯誤 0
+[c262144p1] clients= 4  總吞吐   170.0 tok/s  單請求  179.6 (最慢  176.9)  TTFT 平均  4.67s 最久  9.16s  錯誤 0
+restored p4 262144
+74889 MiB
+
+

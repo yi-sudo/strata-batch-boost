@@ -1,0 +1,42 @@
+[
+ {
+  "label": "p8-attn+gdn",
+  "clients": 1,
+  "aggregate_tok_s": 181.21695503194775,
+  "per_req_tok_s": 182.11119356281685,
+  "per_req_min": 182.11119356281685,
+  "ttft_mean_s": 0.02773939051257912,
+  "ttft_max_s": 0.02773939051257912,
+  "errors": 0
+ },
+ {
+  "label": "p8-attn+gdn",
+  "clients": 4,
+  "aggregate_tok_s": 313.6438211457038,
+  "per_req_tok_s": 80.44163285336145,
+  "per_req_min": 79.01740844828231,
+  "ttft_mean_s": 0.3036693124959129,
+  "ttft_max_s": 0.5628328059974592,
+  "errors": 0
+ },
+ {
+  "label": "p8-attn+gdn",
+  "clients": 6,
+  "aggregate_tok_s": 359.172925487954,
+  "per_req_tok_s": 61.43413588216889,
+  "per_req_min": 60.36483235751411,
+  "ttft_mean_s": 0.4028619887515864,
+  "ttft_max_s": 0.7542456479859538,
+  "errors": 0
+ },
+ {
+  "label": "p8-attn+gdn",
+  "clients": 8,
+  "aggregate_tok_s": 377.8287529075604,
+  "per_req_tok_s": 48.77203932785289,
+  "per_req_min": 47.768922373001715,
+  "ttft_mean_s": 0.6371092425670213,
+  "ttft_max_s": 1.2121850575058488,
+  "errors": 0
+ }
+]

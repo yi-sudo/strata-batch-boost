@@ -1,0 +1,32 @@
+[
+ {
+  "label": "lab-p1",
+  "clients": 1,
+  "aggregate_tok_s": 57.411150544192346,
+  "per_req_tok_s": 57.512367977023,
+  "per_req_min": 57.512367977023,
+  "ttft_mean_s": 0.028370418498525396,
+  "ttft_max_s": 0.028370418498525396,
+  "errors": 0
+ },
+ {
+  "label": "lab-p1",
+  "clients": 2,
+  "aggregate_tok_s": 92.13908838666659,
+  "per_req_tok_s": 93.40094289566602,
+  "per_req_min": 90.90280800799333,
+  "ttft_mean_s": 5.8801839497537,
+  "ttft_max_s": 11.638694613517146,
+  "errors": 0
+ },
+ {
+  "label": "lab-p1",
+  "clients": 4,
+  "aggregate_tok_s": 113.66322640551651,
+  "per_req_tok_s": 116.07972740892296,
+  "per_req_min": 109.80918163556964,
+  "ttft_mean_s": 14.200194543001999,
+  "ttft_max_s": 27.75929825399362,
+  "errors": 0
+ }
+]

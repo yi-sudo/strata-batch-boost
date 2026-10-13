@@ -1,0 +1,42 @@
+[
+ {
+  "label": "p4mtp-d1",
+  "clients": 1,
+  "aggregate_tok_s": 186.844590257885,
+  "per_req_tok_s": 187.7995269661708,
+  "per_req_min": 187.7995269661708,
+  "ttft_mean_s": 0.027868170509464107,
+  "ttft_max_s": 0.027868170509464107,
+  "errors": 0
+ },
+ {
+  "label": "p4mtp-d1",
+  "clients": 2,
+  "aggregate_tok_s": 213.4706011152789,
+  "per_req_tok_s": 109.5931839284785,
+  "per_req_min": 108.13218534228099,
+  "ttft_mean_s": 0.1956244030079688,
+  "ttft_max_s": 0.28425276301277336,
+  "errors": 0
+ },
+ {
+  "label": "p4mtp-d1",
+  "clients": 3,
+  "aggregate_tok_s": 238.7628473096629,
+  "per_req_tok_s": 81.68268516227295,
+  "per_req_min": 80.56826732628461,
+  "ttft_mean_s": 0.18214967633927398,
+  "ttft_max_s": 0.3420691814972088,
+  "errors": 0
+ },
+ {
+  "label": "p4mtp-d1",
+  "clients": 4,
+  "aggregate_tok_s": 246.21412302544047,
+  "per_req_tok_s": 63.718398935063746,
+  "per_req_min": 62.31583722231628,
+  "ttft_mean_s": 0.3192390140029602,
+  "ttft_max_s": 0.5868759434961248,
+  "errors": 0
+ }
+]

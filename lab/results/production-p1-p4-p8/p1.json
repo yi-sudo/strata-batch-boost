@@ -1,0 +1,42 @@
+[
+ {
+  "label": "p1",
+  "clients": 1,
+  "aggregate_tok_s": 179.9968594724761,
+  "per_req_tok_s": 180.87834671281067,
+  "per_req_min": 180.87834671281067,
+  "ttft_mean_s": 0.0277216255053645,
+  "ttft_max_s": 0.0277216255053645,
+  "errors": 0
+ },
+ {
+  "label": "p1",
+  "clients": 2,
+  "aggregate_tok_s": 176.9982361531105,
+  "per_req_tok_s": 181.10388025200194,
+  "per_req_min": 176.55744536973765,
+  "ttft_mean_s": 2.96121804874565,
+  "ttft_max_s": 5.828037059007329,
+  "errors": 0
+ },
+ {
+  "label": "p1",
+  "clients": 4,
+  "aggregate_tok_s": 179.4084443078009,
+  "per_req_tok_s": 184.07077611753698,
+  "per_req_min": 180.29376056520874,
+  "ttft_mean_s": 8.702450569377106,
+  "ttft_max_s": 17.304659100496792,
+  "errors": 0
+ },
+ {
+  "label": "p1",
+  "clients": 8,
+  "aggregate_tok_s": 176.97559846911187,
+  "per_req_tok_s": 182.09967824363235,
+  "per_req_min": 178.5471684766032,
+  "ttft_mean_s": 20.48662254687588,
+  "ttft_max_s": 40.706515044512344,
+  "errors": 0
+ }
+]

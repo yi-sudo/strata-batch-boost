@@ -1,0 +1,193 @@
+strata serve: 22412 MiB of VRAM free with everything loaded
+strata verify: capturing the 6-token window (22412 MiB of VRAM free)
+strata verify: captured the 6-token window (upload no error, sync no error)
+strata verify: capturing the 1-token window (22406 MiB of VRAM free)
+strata verify: captured the 1-token window (upload no error, sync no error)
+strata serve: prompt 25 tokens = 0 reused + 25 read in 94 ms (266.6 tok/s), 1 generated in 14 ms (71.1 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: resident RAM: 3.40 GiB of experts in RAM, 0 exchanged with the VRAM tier, 0 blob reads from the file
+strata serve: expert tiers: GPU 0 hits this request; since the start RAM 0 blobs, files 0 blobs 50294.7 MB read
+strata serve: file tier I/O this request: the OS read 59317.4 MB from storage (294 major faults) for 50294.7 MB of expert reads
+strata batch: slot 0 takes 26 tokens (copied in 59.3 ms)
+strata serve: prompt 26 tokens = 25 reused + 1 read in 0 ms (128617.4 tok/s), 1 generated in 7 ms (153.2 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: resident RAM: 3.40 GiB of experts in RAM, 0 exchanged with the VRAM tier, 0 blob reads from the file
+strata serve: expert tiers: GPU 0 hits this request; since the start RAM 0 blobs, files 0 blobs 50294.7 MB read
+strata serve: file tier I/O this request: the OS read 0.0 MB from storage (0 major faults) for 0.0 MB of expert reads
+strata verify: captured the batch window over slots 0
+strata batch: slot 1 takes 31 tokens (copied in 51.4 ms)
+strata serve: prompt 31 tokens = 0 reused + 31 read in 97 ms (320.5 tok/s), 1 generated in 7 ms (152.0 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: resident RAM: 3.40 GiB of experts in RAM, 0 exchanged with the VRAM tier, 0 blob reads from the file
+strata serve: expert tiers: GPU 0 hits this request; since the start RAM 0 blobs, files 0 blobs 50294.7 MB read
+strata serve: file tier I/O this request: the OS read 1.4 MB from storage (0 major faults) for 0.0 MB of expert reads
+strata verify: captured the batch window over slots 0,1
+strata batch: slot 2 takes 31 tokens (copied in 51.3 ms)
+strata serve: prompt 31 tokens = 0 reused + 31 read in 95 ms (324.7 tok/s), 1 generated in 7 ms (151.9 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: resident RAM: 3.40 GiB of experts in RAM, 0 exchanged with the VRAM tier, 0 blob reads from the file
+strata serve: expert tiers: GPU 0 hits this request; since the start RAM 0 blobs, files 0 blobs 50294.7 MB read
+strata serve: file tier I/O this request: the OS read 1.4 MB from storage (1 major faults) for 0.0 MB of expert reads
+strata verify: captured the batch window over slots 0,1,2
+strata batch: slot 3 takes 26 tokens (copied in 51.5 ms)
+strata serve: prompt 26 tokens = 0 reused + 26 read in 89 ms (293.4 tok/s), 1 generated in 7 ms (152.4 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: resident RAM: 3.40 GiB of experts in RAM, 0 exchanged with the VRAM tier, 0 blob reads from the file
+strata serve: expert tiers: GPU 0 hits this request; since the start RAM 0 blobs, files 0 blobs 50294.7 MB read
+strata serve: file tier I/O this request: the OS read 1.1 MB from storage (0 major faults) for 0.0 MB of expert reads
+strata verify: captured the batch window over slots 0,1,2,3
+strata verify: captured the batch window over slots 1,2
+strata verify: captured the batch window over slots 2
+strata batch: 401 windows, avg 3.65 rows, 11.99 ms/window = run 11.21 (CUDA0 GPU-reach wait 0.00 + CPU experts 0.00) + commit 0.78 + emit 0.00 + adapt wait 0.00; per stage (ms/window): CUDA0 wait 0.00 + pool 0.00; per layer-window: CPU experts 0.00, VRAM hits 0.00, PCIe 0.00; routed entries per window: VRAM 0.0 (0.0%), PCIe 0.0 (0.0%), CPU 0.0 (0.0%); 277.9 rows/s over 5265 ms of wall time (admissions included)
+strata verify: capturing the 3-token window (22364 MiB of VRAM free)
+strata verify: captured the 3-token window (upload no error, sync no error)
+strata verify: capturing the 2-token window (22354 MiB of VRAM free)
+strata verify: captured the 2-token window (upload no error, sync no error)
+strata verify: capturing the 4-token window (22350 MiB of VRAM free)
+strata verify: captured the 4-token window (upload no error, sync no error)
+strata serve: prompt 58 tokens = 0 reused + 58 read in 160 ms (362.7 tok/s), 64 generated in 344 ms (185.9 tok/s), drafts accepted 25 of 33, 1 checkpoints
+strata serve: resident RAM: 3.40 GiB of experts in RAM, 0 exchanged with the VRAM tier, 0 blob reads from the file
+strata serve: expert tiers: GPU 0 hits this request; since the start RAM 0 blobs, files 0 blobs 50294.7 MB read
+strata serve: file tier I/O this request: the OS read 83.9 MB from storage (0 major faults) for 0.0 MB of expert reads
+strata serve: prompt 58 tokens = 51 reused + 7 read in 19 ms (375.4 tok/s), 1024 generated in 5674 ms (180.5 tok/s), drafts accepted 372 of 692, 1 checkpoints
+strata serve: resident RAM: 3.40 GiB of experts in RAM, 0 exchanged with the VRAM tier, 0 blob reads from the file
+strata serve: expert tiers: GPU 0 hits this request; since the start RAM 0 blobs, files 0 blobs 50294.7 MB read
+strata serve: file tier I/O this request: the OS read 108.4 MB from storage (0 major faults) for 0.0 MB of expert reads
+strata serve: suffix drafts: 2 windows, 1 of 5 drafts accepted
+strata serve: prompt 58 tokens = 51 reused + 7 read in 19 ms (375.7 tok/s), 1024 generated in 5588 ms (183.3 tok/s), drafts accepted 381 of 674, 1 checkpoints
+strata serve: resident RAM: 3.40 GiB of experts in RAM, 0 exchanged with the VRAM tier, 0 blob reads from the file
+strata serve: expert tiers: GPU 0 hits this request; since the start RAM 0 blobs, files 0 blobs 50294.7 MB read
+strata serve: file tier I/O this request: the OS read 97.7 MB from storage (0 major faults) for 0.0 MB of expert reads
+strata serve: suffix drafts: 1 windows, 3 of 3 drafts accepted
+strata serve: prompt 58 tokens = 51 reused + 7 read in 19 ms (367.9 tok/s), 1 generated in 8 ms (131.7 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: resident RAM: 3.40 GiB of experts in RAM, 0 exchanged with the VRAM tier, 0 blob reads from the file
+strata serve: expert tiers: GPU 0 hits this request; since the start RAM 0 blobs, files 0 blobs 50294.7 MB read
+strata serve: file tier I/O this request: the OS read 0.0 MB from storage (0 major faults) for 0.0 MB of expert reads
+strata batch: slot 3 takes 59 tokens (copied in 55.0 ms)
+strata serve: prompt 59 tokens = 58 reused + 1 read in 0 ms (213720.9 tok/s), 1 generated in 7 ms (146.8 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: resident RAM: 3.40 GiB of experts in RAM, 0 exchanged with the VRAM tier, 0 blob reads from the file
+strata serve: expert tiers: GPU 0 hits this request; since the start RAM 0 blobs, files 0 blobs 50294.7 MB read
+strata serve: file tier I/O this request: the OS read 0.0 MB from storage (0 major faults) for 0.0 MB of expert reads
+strata verify: captured the batch window over slots 3
+strata batch: slot 0 takes 59 tokens (copied in 55.4 ms)
+strata serve: prompt 59 tokens = 0 reused + 59 read in 153 ms (386.6 tok/s), 1 generated in 7 ms (146.3 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: resident RAM: 3.40 GiB of experts in RAM, 0 exchanged with the VRAM tier, 0 blob reads from the file
+strata serve: expert tiers: GPU 0 hits this request; since the start RAM 0 blobs, files 0 blobs 50294.7 MB read
+strata serve: file tier I/O this request: the OS read 0.6 MB from storage (0 major faults) for 0.0 MB of expert reads
+strata verify: captured the batch window over slots 0,3
+strata batch: 1024 windows, avg 2.00 rows, 8.83 ms/window = run 8.37 (CUDA0 GPU-reach wait 0.00 + CPU experts 0.00) + commit 0.46 + emit 0.00 + adapt wait 0.00; per stage (ms/window): CUDA0 wait 0.00 + pool 0.00; per layer-window: CPU experts 0.00, VRAM hits 0.00, PCIe 0.00; routed entries per window: VRAM 0.0 (0.0%), PCIe 0.0 (0.0%), CPU 0.0 (0.0%); 220.8 rows/s over 9262 ms of wall time (admissions included)
+strata batch: slot 3 gave back 51 tokens of this conversation (its turn checkpoint) in 29.9 ms
+strata serve: prompt 58 tokens = 51 reused + 7 read in 43 ms (164.6 tok/s), 1 generated in 8 ms (131.1 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: resident RAM: 3.40 GiB of experts in RAM, 0 exchanged with the VRAM tier, 0 blob reads from the file
+strata serve: expert tiers: GPU 0 hits this request; since the start RAM 0 blobs, files 0 blobs 50294.7 MB read
+strata serve: file tier I/O this request: the OS read 116.3 MB from storage (0 major faults) for 0.0 MB of expert reads
+strata batch: slot 1 takes 59 tokens (copied in 54.1 ms)
+strata serve: prompt 59 tokens = 58 reused + 1 read in 0 ms (166334.0 tok/s), 1 generated in 7 ms (146.8 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: resident RAM: 3.40 GiB of experts in RAM, 0 exchanged with the VRAM tier, 0 blob reads from the file
+strata serve: expert tiers: GPU 0 hits this request; since the start RAM 0 blobs, files 0 blobs 50294.7 MB read
+strata serve: file tier I/O this request: the OS read 0.0 MB from storage (0 major faults) for 0.0 MB of expert reads
+strata verify: captured the batch window over slots 1
+strata batch: slot 0 gave back 52 tokens of this conversation (its turn checkpoint) in 29.6 ms
+strata batch: slot 2 takes 59 tokens (copied in 54.1 ms)
+strata serve: prompt 59 tokens = 52 reused + 7 read in 42 ms (165.5 tok/s), 1 generated in 7 ms (145.8 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: resident RAM: 3.40 GiB of experts in RAM, 0 exchanged with the VRAM tier, 0 blob reads from the file
+strata serve: expert tiers: GPU 0 hits this request; since the start RAM 0 blobs, files 0 blobs 50294.7 MB read
+strata serve: file tier I/O this request: the OS read 0.0 MB from storage (0 major faults) for 0.0 MB of expert reads
+strata batch: 1024 windows, avg 2.00 rows, 8.81 ms/window = run 8.35 (CUDA0 GPU-reach wait 0.00 + CPU experts 0.00) + commit 0.46 + emit 0.00 + adapt wait 0.00; per stage (ms/window): CUDA0 wait 0.00 + pool 0.00; per layer-window: CPU experts 0.00, VRAM hits 0.00, PCIe 0.00; routed entries per window: VRAM 0.0 (0.0%), PCIe 0.0 (0.0%), CPU 0.0 (0.0%); 224.2 rows/s over 9121 ms of wall time (admissions included)
+strata batch: slot 1 gave back 51 tokens of this conversation (its turn checkpoint) in 29.9 ms
+strata serve: prompt 58 tokens = 51 reused + 7 read in 43 ms (164.5 tok/s), 1 generated in 7 ms (138.2 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: resident RAM: 3.40 GiB of experts in RAM, 0 exchanged with the VRAM tier, 0 blob reads from the file
+strata serve: expert tiers: GPU 0 hits this request; since the start RAM 0 blobs, files 0 blobs 50294.7 MB read
+strata serve: file tier I/O this request: the OS read 107.4 MB from storage (0 major faults) for 0.0 MB of expert reads
+strata batch: slot 3 takes 59 tokens (copied in 54.2 ms)
+strata serve: prompt 59 tokens = 58 reused + 1 read in 0 ms (128287.4 tok/s), 1 generated in 7 ms (146.6 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: resident RAM: 3.40 GiB of experts in RAM, 0 exchanged with the VRAM tier, 0 blob reads from the file
+strata serve: expert tiers: GPU 0 hits this request; since the start RAM 0 blobs, files 0 blobs 50294.7 MB read
+strata serve: file tier I/O this request: the OS read 0.0 MB from storage (0 major faults) for 0.0 MB of expert reads
+strata batch: slot 0 takes 58 tokens (copied in 54.7 ms)
+strata serve: prompt 58 tokens = 0 reused + 58 read in 150 ms (386.0 tok/s), 1 generated in 7 ms (146.2 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: resident RAM: 3.40 GiB of experts in RAM, 0 exchanged with the VRAM tier, 0 blob reads from the file
+strata serve: expert tiers: GPU 0 hits this request; since the start RAM 0 blobs, files 0 blobs 50294.7 MB read
+strata serve: file tier I/O this request: the OS read 0.6 MB from storage (0 major faults) for 0.0 MB of expert reads
+strata batch: slot 2 gave back 52 tokens of this conversation (its turn checkpoint) in 29.0 ms
+strata batch: slot 1 takes 59 tokens (copied in 53.8 ms)
+strata serve: prompt 59 tokens = 52 reused + 7 read in 42 ms (168.0 tok/s), 1 generated in 7 ms (146.3 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: resident RAM: 3.40 GiB of experts in RAM, 0 exchanged with the VRAM tier, 0 blob reads from the file
+strata serve: expert tiers: GPU 0 hits this request; since the start RAM 0 blobs, files 0 blobs 50294.7 MB read
+strata serve: file tier I/O this request: the OS read 0.1 MB from storage (0 major faults) for 0.0 MB of expert reads
+strata verify: captured the batch window over slots 0,1,3
+strata batch: 1025 windows, avg 2.99 rows, 10.48 ms/window = run 9.83 (CUDA0 GPU-reach wait 0.00 + CPU experts 0.00) + commit 0.64 + emit 0.00 + adapt wait 0.00; per stage (ms/window): CUDA0 wait 0.00 + pool 0.00; per layer-window: CPU experts 0.00, VRAM hits 0.00, PCIe 0.00; routed entries per window: VRAM 0.0 (0.0%), PCIe 0.0 (0.0%), CPU 0.0 (0.0%); 277.6 rows/s over 11053 ms of wall time (admissions included)
+strata serve: prompt 59 tokens = 52 reused + 7 read in 19 ms (374.0 tok/s), 2 generated in 15 ms (137.5 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: resident RAM: 3.40 GiB of experts in RAM, 0 exchanged with the VRAM tier, 0 blob reads from the file
+strata serve: expert tiers: GPU 0 hits this request; since the start RAM 0 blobs, files 0 blobs 50294.7 MB read
+strata serve: file tier I/O this request: the OS read 162.2 MB from storage (0 major faults) for 0.0 MB of expert reads
+strata batch: slot 2 takes 61 tokens (copied in 54.9 ms)
+strata serve: prompt 61 tokens = 60 reused + 1 read in 0 ms (232072.4 tok/s), 1 generated in 7 ms (146.9 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: resident RAM: 3.40 GiB of experts in RAM, 0 exchanged with the VRAM tier, 0 blob reads from the file
+strata serve: expert tiers: GPU 0 hits this request; since the start RAM 0 blobs, files 0 blobs 50294.7 MB read
+strata serve: file tier I/O this request: the OS read 0.0 MB from storage (0 major faults) for 0.0 MB of expert reads
+strata batch: slot 3 gave back 51 tokens of this conversation (its turn checkpoint) in 29.2 ms
+strata batch: slot 3 takes 58 tokens (copied in 54.3 ms)
+strata serve: prompt 58 tokens = 51 reused + 7 read in 42 ms (167.3 tok/s), 1 generated in 7 ms (146.3 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: resident RAM: 3.40 GiB of experts in RAM, 0 exchanged with the VRAM tier, 0 blob reads from the file
+strata serve: expert tiers: GPU 0 hits this request; since the start RAM 0 blobs, files 0 blobs 50294.7 MB read
+strata serve: file tier I/O this request: the OS read 0.0 MB from storage (0 major faults) for 0.0 MB of expert reads
+strata verify: captured the batch window over slots 2,3
+strata batch: slot 0 gave back 51 tokens of this conversation (its turn checkpoint) in 29.5 ms
+strata batch: slot 0 takes 58 tokens (copied in 54.9 ms)
+strata serve: prompt 58 tokens = 51 reused + 7 read in 42 ms (165.9 tok/s), 1 generated in 7 ms (146.4 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: resident RAM: 3.40 GiB of experts in RAM, 0 exchanged with the VRAM tier, 0 blob reads from the file
+strata serve: expert tiers: GPU 0 hits this request; since the start RAM 0 blobs, files 0 blobs 50294.7 MB read
+strata serve: file tier I/O this request: the OS read 0.1 MB from storage (0 major faults) for 0.0 MB of expert reads
+strata verify: captured the batch window over slots 0,2,3
+strata batch: 1025 windows, avg 2.99 rows, 10.45 ms/window = run 9.80 (CUDA0 GPU-reach wait 0.00 + CPU experts 0.00) + commit 0.64 + emit 0.00 + adapt wait 0.00; per stage (ms/window): CUDA0 wait 0.00 + pool 0.00; per layer-window: CPU experts 0.00, VRAM hits 0.00, PCIe 0.00; routed entries per window: VRAM 0.0 (0.0%), PCIe 0.0 (0.0%), CPU 0.0 (0.0%); 281.0 rows/s over 10916 ms of wall time (admissions included)
+strata serve: prompt 57 tokens = 0 reused + 57 read in 151 ms (377.5 tok/s), 2 generated in 15 ms (133.8 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: resident RAM: 3.40 GiB of experts in RAM, 0 exchanged with the VRAM tier, 0 blob reads from the file
+strata serve: expert tiers: GPU 0 hits this request; since the start RAM 0 blobs, files 0 blobs 50294.7 MB read
+strata serve: file tier I/O this request: the OS read 154.7 MB from storage (0 major faults) for 0.0 MB of expert reads
+strata batch: slot 1 takes 59 tokens (copied in 54.5 ms)
+strata serve: prompt 59 tokens = 58 reused + 1 read in 0 ms (134861.8 tok/s), 1 generated in 7 ms (146.8 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: resident RAM: 3.40 GiB of experts in RAM, 0 exchanged with the VRAM tier, 0 blob reads from the file
+strata serve: expert tiers: GPU 0 hits this request; since the start RAM 0 blobs, files 0 blobs 50294.7 MB read
+strata serve: file tier I/O this request: the OS read 0.0 MB from storage (0 major faults) for 0.0 MB of expert reads
+strata batch: slot 0 gave back 51 tokens of this conversation (its turn checkpoint) in 29.5 ms
+strata batch: slot 2 takes 58 tokens (copied in 54.2 ms)
+strata serve: prompt 58 tokens = 51 reused + 7 read in 42 ms (165.9 tok/s), 1 generated in 7 ms (146.2 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: resident RAM: 3.40 GiB of experts in RAM, 0 exchanged with the VRAM tier, 0 blob reads from the file
+strata serve: expert tiers: GPU 0 hits this request; since the start RAM 0 blobs, files 0 blobs 50294.7 MB read
+strata serve: file tier I/O this request: the OS read 0.0 MB from storage (0 major faults) for 0.0 MB of expert reads
+strata batch: slot 3 gave back 51 tokens of this conversation (its turn checkpoint) in 29.3 ms
+strata batch: slot 3 takes 58 tokens (copied in 54.1 ms)
+strata serve: prompt 58 tokens = 51 reused + 7 read in 42 ms (167.0 tok/s), 1 generated in 7 ms (146.3 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: resident RAM: 3.40 GiB of experts in RAM, 0 exchanged with the VRAM tier, 0 blob reads from the file
+strata serve: expert tiers: GPU 0 hits this request; since the start RAM 0 blobs, files 0 blobs 50294.7 MB read
+strata serve: file tier I/O this request: the OS read 0.0 MB from storage (0 major faults) for 0.0 MB of expert reads
+strata verify: captured the batch window over slots 1,2,3
+strata batch: slot 0 takes 59 tokens (copied in 55.5 ms)
+strata serve: prompt 59 tokens = 0 reused + 59 read in 152 ms (387.5 tok/s), 1 generated in 7 ms (146.0 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: resident RAM: 3.40 GiB of experts in RAM, 0 exchanged with the VRAM tier, 0 blob reads from the file
+strata serve: expert tiers: GPU 0 hits this request; since the start RAM 0 blobs, files 0 blobs 50294.7 MB read
+strata serve: file tier I/O this request: the OS read 0.1 MB from storage (0 major faults) for 0.0 MB of expert reads
+strata batch: 1026 windows, avg 3.99 rows, 12.12 ms/window = run 11.27 (CUDA0 GPU-reach wait 0.00 + CPU experts 0.00) + commit 0.85 + emit 0.00 + adapt wait 0.00; per stage (ms/window): CUDA0 wait 0.00 + pool 0.00; per layer-window: CPU experts 0.00, VRAM hits 0.00, PCIe 0.00; routed entries per window: VRAM 0.0 (0.0%), PCIe 0.0 (0.0%), CPU 0.0 (0.0%); 318.1 rows/s over 12859 ms of wall time (admissions included)
+strata batch: slot 3 gave back 51 tokens of this conversation (its turn checkpoint) in 30.2 ms
+strata serve: prompt 58 tokens = 51 reused + 7 read in 43 ms (163.3 tok/s), 3 generated in 16 ms (190.7 tok/s), drafts accepted 1 of 1, 1 checkpoints
+strata serve: resident RAM: 3.40 GiB of experts in RAM, 0 exchanged with the VRAM tier, 0 blob reads from the file
+strata serve: expert tiers: GPU 0 hits this request; since the start RAM 0 blobs, files 0 blobs 50294.7 MB read
+strata serve: file tier I/O this request: the OS read 198.0 MB from storage (0 major faults) for 0.0 MB of expert reads
+strata batch: slot 1 takes 61 tokens (copied in 54.6 ms)
+strata serve: prompt 61 tokens = 60 reused + 1 read in 0 ms (173882.8 tok/s), 1 generated in 7 ms (146.2 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: resident RAM: 3.40 GiB of experts in RAM, 0 exchanged with the VRAM tier, 0 blob reads from the file
+strata serve: expert tiers: GPU 0 hits this request; since the start RAM 0 blobs, files 0 blobs 50294.7 MB read
+strata serve: file tier I/O this request: the OS read 0.0 MB from storage (0 major faults) for 0.0 MB of expert reads
+strata batch: slot 2 takes 57 tokens (copied in 54.5 ms)
+strata serve: prompt 57 tokens = 0 reused + 57 read in 149 ms (382.2 tok/s), 1 generated in 7 ms (146.2 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: resident RAM: 3.40 GiB of experts in RAM, 0 exchanged with the VRAM tier, 0 blob reads from the file
+strata serve: expert tiers: GPU 0 hits this request; since the start RAM 0 blobs, files 0 blobs 50294.7 MB read
+strata serve: file tier I/O this request: the OS read 0.1 MB from storage (0 major faults) for 0.0 MB of expert reads
+strata batch: slot 0 gave back 52 tokens of this conversation (its turn checkpoint) in 29.7 ms
+strata batch: slot 3 takes 59 tokens (copied in 54.0 ms)
+strata serve: prompt 59 tokens = 52 reused + 7 read in 42 ms (165.3 tok/s), 1 generated in 7 ms (145.9 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: resident RAM: 3.40 GiB of experts in RAM, 0 exchanged with the VRAM tier, 0 blob reads from the file
+strata serve: expert tiers: GPU 0 hits this request; since the start RAM 0 blobs, files 0 blobs 50294.7 MB read
+strata serve: file tier I/O this request: the OS read 0.1 MB from storage (0 major faults) for 0.0 MB of expert reads
+strata batch: slot 0 takes 58 tokens (copied in 55.1 ms)
+strata serve: prompt 58 tokens = 0 reused + 58 read in 150 ms (385.4 tok/s), 1 generated in 7 ms (146.3 tok/s), drafts accepted 0 of 0, 1 checkpoints
+strata serve: resident RAM: 3.40 GiB of experts in RAM, 0 exchanged with the VRAM tier, 0 blob reads from the file
+strata serve: expert tiers: GPU 0 hits this request; since the start RAM 0 blobs, files 0 blobs 50294.7 MB read
+strata serve: file tier I/O this request: the OS read 0.1 MB from storage (0 major faults) for 0.0 MB of expert reads
+strata batch: 1026 windows, avg 3.99 rows, 12.12 ms/window = run 11.27 (CUDA0 GPU-reach wait 0.00 + CPU experts 0.00) + commit 0.85 + emit 0.00 + adapt wait 0.00; per stage (ms/window): CUDA0 wait 0.00 + pool 0.00; per layer-window: CPU experts 0.00, VRAM hits 0.00, PCIe 0.00; routed entries per window: VRAM 0.0 (0.0%), PCIe 0.0 (0.0%), CPU 0.0 (0.0%); 315.4 rows/s over 12963 ms of wall time (admissions included)

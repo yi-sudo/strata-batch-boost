@@ -1,0 +1,42 @@
+[
+ {
+  "label": "attn+gdn",
+  "clients": 1,
+  "aggregate_tok_s": 181.174932975287,
+  "per_req_tok_s": 182.07596232887414,
+  "per_req_min": 182.07596232887414,
+  "ttft_mean_s": 0.027969496499281377,
+  "ttft_max_s": 0.027969496499281377,
+  "errors": 0
+ },
+ {
+  "label": "attn+gdn",
+  "clients": 2,
+  "aggregate_tok_s": 220.31755702175573,
+  "per_req_tok_s": 111.83716164766946,
+  "per_req_min": 110.82318573527928,
+  "ttft_mean_s": 0.1314641520002624,
+  "ttft_max_s": 0.22203705400170293,
+  "errors": 0
+ },
+ {
+  "label": "attn+gdn",
+  "clients": 3,
+  "aggregate_tok_s": 276.96485406723906,
+  "per_req_tok_s": 94.11417881425868,
+  "per_req_min": 92.91136554282492,
+  "ttft_mean_s": 0.19808389799436554,
+  "ttft_max_s": 0.3348599750024732,
+  "errors": 0
+ },
+ {
+  "label": "attn+gdn",
+  "clients": 4,
+  "aggregate_tok_s": 312.91037651210263,
+  "per_req_tok_s": 80.5579947176291,
+  "per_req_min": 79.195654963757,
+  "ttft_mean_s": 0.3572638582481886,
+  "ttft_max_s": 0.6294431384885684,
+  "errors": 0
+ }
+]
