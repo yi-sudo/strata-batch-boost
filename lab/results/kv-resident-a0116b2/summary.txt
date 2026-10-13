@@ -1,0 +1,27 @@
+KV streaming on one GPU: does the patch cost anything when STRATA_BATCH_ATTN_ROWS falls back?
+(answer to https://github.com/Niko1221/Strata/pull/2234#issuecomment-6139889998)
+
+Build: Strata a0116b2 + batch-row-kernels (d4b3432), the same binary in every run, only the env vars differ.
+RTX PRO 6000 Blackwell (96 GB), CUDA 13.0, IQ3_S, all experts in VRAM, --batch 8 --kv-resident 32768
+(KV streaming: 32768 of 262144 cells per QSA layer in VRAM), --kv int8, 262144 context, MTP --spec 4, vision,
+reserve 20480 MiB. bench_concurrency.py, 1024 tokens, 2 runs per point. Run order: off-a, on-a, off-b, on-b, gdn-only.
+
+Total tok/s
+clients   off-a   off-b   on-a    on-b    gdn-only
+1         182.4   181.0   179.6   181.9   179.8
+4         263.5   263.4   271.1   271.9   272.4
+6         293.2   293.4   303.3   304.2   304.0
+8         302.7   304.9   315.4   315.3   315.6
+
+Verify window, ms (engine "strata batch:" stats, mean of the 2 runs)
+rows      off     on      gdn-only
+4         14.5    14.1    14.1
+6         19.7    18.9    18.9
+8         25.0    24.1    24.1
+
+- on == gdn-only: with KV streaming, STRATA_BATCH_ATTN_ROWS falls back to the per-row launches as intended; only
+  STRATA_BATCH_GDN_GROUPS acts. It still gives +3-4% at 4-8 clients (vs +16-22% without KV streaming).
+- 1 client runs the solo path, which the switches do not touch: 179.6-182.4 is run-to-run spread.
+- Parity (4 concurrent temperature-0 prompts): off-a vs on-a, off-b, on-b, gdn-only: all IDENTICAL.
+- The first gdn-only run was disturbed (1 client 96.8 tok/s on the solo path, 4-row parity window 21.6 ms, then
+  normal again); engine-gdn-only-disturbed.log. The rerun (gdn-only-rerun.json) is the one in the tables.

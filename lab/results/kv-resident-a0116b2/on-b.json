@@ -1,0 +1,42 @@
+[
+ {
+  "label": "on-b",
+  "clients": 1,
+  "aggregate_tok_s": 181.9145117615244,
+  "per_req_tok_s": 182.8247891601515,
+  "per_req_min": 182.8247891601515,
+  "ttft_mean_s": 0.028026654006680474,
+  "ttft_max_s": 0.028026654006680474,
+  "errors": 0
+ },
+ {
+  "label": "on-b",
+  "clients": 4,
+  "aggregate_tok_s": 271.9316885792372,
+  "per_req_tok_s": 69.73981330217464,
+  "per_req_min": 68.66005815933588,
+  "ttft_mean_s": 0.364465109014418,
+  "ttft_max_s": 0.6165306630427949,
+  "errors": 0
+ },
+ {
+  "label": "on-b",
+  "clients": 6,
+  "aggregate_tok_s": 304.2310026434868,
+  "per_req_tok_s": 51.78165030835654,
+  "per_req_min": 50.9746066436245,
+  "ttft_mean_s": 0.3935122431673032,
+  "ttft_max_s": 0.821150937495986,
+  "errors": 0
+ },
+ {
+  "label": "on-b",
+  "clients": 8,
+  "aggregate_tok_s": 315.28182466388193,
+  "per_req_tok_s": 40.422804229823114,
+  "per_req_min": 39.6451909728998,
+  "ttft_mean_s": 0.6089156088673917,
+  "ttft_max_s": 1.2518093925027642,
+  "errors": 0
+ }
+]
